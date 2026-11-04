@@ -4,7 +4,7 @@ import '../models/animal.dart';
 
 class AnimalService {
   //endereço da API 
-  static const String baseUrl = 'https://elopet-api-1.onrender.com'; 
+  static String baseUrl = 'https://elopet-api-1.onrender.com'; 
 
   //Procurar todos os animais disponíveis na rota /animais
   Future<List<Animal>> getAnimais() async {
@@ -83,5 +83,16 @@ class AnimalService {
     } catch (e) {
       return false;
     }
+  }
+
+  //Buscar todas as solicitações de adoção (GET na rota /solicitacoes)
+  Future<List<dynamic>> getSolicitacoes() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/solicitacoes'));
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+    } catch (e) {}
+    return [];
   }
 }

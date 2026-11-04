@@ -244,7 +244,7 @@ class _CadastroAnimalState extends State<CadastroAnimal> {
                     child: _salvando
                         ? CircularProgressIndicator(color: Colors.white)
                         : Text(
-                            'Cadastrar Pet 🐾',
+                            'Cadastrar Pet',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                   ),
