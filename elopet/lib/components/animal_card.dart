@@ -34,17 +34,17 @@ class AnimalCard extends StatelessWidget {
               children: [
                 Image.network(
                   animal.imagem,
-                  height: 160,
+                  height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   alignment: Alignment.center,
                   errorBuilder: (context, error, StackTrace) {
                     return Container(
-                      height: 160,
+                      height: 200,
                       color: Color(0XFFB9C9BD),
                       child: Icon(
                         Icons.pets,
-                        size: 50,
+                        size: 100,
                         color: Color(0xFF263F50),
                       ),
                     );

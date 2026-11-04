@@ -1,3 +1,4 @@
+import 'package:elopet/screens/detalhes_animal.dart';
 import 'package:flutter/material.dart';
 import '../models/animal.dart';
 import '../services/animal_service.dart';
@@ -136,7 +137,12 @@ class _HomeState extends State<Home> {
           return AnimalCard(
             animal: animal,
             onTap: () {
-              // Em breve abrir tela de Detalhes do Pet
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetalhesAnimal(animal: animal),
+                ),
+              );
             },
             onFavoritoTap: () {
               // Em breve adicionar aos Favoritos

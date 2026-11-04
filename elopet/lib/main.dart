@@ -1,4 +1,4 @@
-import 'package:elopet/screens/home.dart';
+import 'package:elopet/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -23,7 +23,7 @@ class EloPetApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: Home(), 
+      home: SplashScreen(), 
     );
   }
 }
