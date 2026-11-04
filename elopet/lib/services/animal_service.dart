@@ -6,7 +6,8 @@ class AnimalService {
   //endereço da API 
   static String baseUrl = 'https://elopet-api-1.onrender.com'; 
 
-  //Procurar todos os animais disponíveis na rota /animais
+  // Em Python, esta busca e filtragem seria feita em 1 linha com List Comprehension:
+  // return [Animal.from_json(item) for item in response.json() if item.get('disponivel')]
   Future<List<Animal>> getAnimais() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/animais'));
