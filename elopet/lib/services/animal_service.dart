@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/animal.dart';
 
 class AnimalService {
-  // Endereço da API 
+  //endereço da API 
   static const String baseUrl = 'https://elopet-api-1.onrender.com'; 
 
   //Procurar todos os animais disponíveis na rota /animais
@@ -14,7 +14,7 @@ class AnimalService {
       if (response.statusCode == 200) {
         final List<dynamic> listaJson = jsonDecode(response.body);
 
-        //Converte cada item em Animal e filtra apenas os disponíveis (disponivel == true)
+        // Converte cada item em Animal e filtra apenas os disponíveis (disponivel == true)
         return listaJson
             .map((item) => Animal.fromJson(item))
             .where((animal) => animal.disponivel == true)
@@ -36,7 +36,7 @@ class AnimalService {
         return dados['message'];
       }
     } catch (e) {
-      //Foto de reserva caso a internet falhar
+      // Foto de reserva caso a internet falhar
     }
     return 'https://images.dog.ceo/breeds/retriever-golden/n02099601_3000.jpg';
   }
@@ -50,7 +50,7 @@ class AnimalService {
         return dados[0]['url'];
       }
     } catch (e) {
-      //Foto de reserva caso a internet falhar
+      // Foto de reserva caso a internet falhar
     }
     return 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500';
   }
@@ -62,6 +62,21 @@ class AnimalService {
         Uri.parse('$baseUrl/animais'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(animal.toJson()),
+      );
+
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //Enviar solicitação de adoção (POST na rota /solicitacoes)
+  Future<bool> enviarSolicitacaoAdocao(Map<String, dynamic> dadosSolicitacao) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/solicitacoes'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(dadosSolicitacao),
       );
 
       return response.statusCode == 201 || response.statusCode == 200;

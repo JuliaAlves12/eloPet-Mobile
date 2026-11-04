@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/animal.dart';
+import 'formulario_adocao.dart';
 
 class DetalhesAnimal extends StatelessWidget {
   final Animal animal;
@@ -101,10 +102,10 @@ class DetalhesAnimal extends StatelessWidget {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Solicitação de adoção enviada para ${animal.nome}! 🐾'),
-                            backgroundColor: Color(0xFF568B89),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FormularioAdocao(animal: animal),
                           ),
                         );
                       },
@@ -115,7 +116,7 @@ class DetalhesAnimal extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'Quero Adotar 🐾',
+                        'Quero Adotar ',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
