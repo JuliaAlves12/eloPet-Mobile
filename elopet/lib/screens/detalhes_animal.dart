@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/animal.dart';
 import 'formulario_adocao.dart';
+import 'perfil.dart'; // Importa a tela de perfil
 
 class DetalhesAnimal extends StatelessWidget {
   final Animal animal;
@@ -9,6 +11,38 @@ class DetalhesAnimal extends StatelessWidget {
     super.key,
     required this.animal,
   });
+
+  // Função que verifica se o utilizador está logado antes de deixar adotar
+  Future<void> _tentarAdotar(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final temPerfil = prefs.getBool('temPerfil') ?? false;
+
+    // Prevenção de erro caso a tela seja fechada antes do async terminar
+    if (!context.mounted) return;
+
+    if (!temPerfil) {
+      // Se NÃO tiver perfil, mostra aviso e envia para a tela de Perfil
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Você precisa criar um perfil para adotar!'),
+          backgroundColor: Colors.red[400],
+        ),
+      );
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Perfil()),
+      );
+    } else {
+      // Se TIVER perfil, vai direto para o formulário de adoção
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FormularioAdocao(animal: animal),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,14 +135,8 @@ class DetalhesAnimal extends StatelessWidget {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FormularioAdocao(animal: animal),
-                          ),
-                        );
-                      },
+                      // Aqui ligámos o botão à nossa nova função!
+                      onPressed: () => _tentarAdotar(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF263F50),
                         shape: RoundedRectangleBorder(
@@ -116,7 +144,7 @@ class DetalhesAnimal extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'Quero Adotar ',
+                        'Quero Adotar',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

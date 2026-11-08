@@ -6,6 +6,7 @@ import '../components/animal_card.dart';
 import 'detalhes_animal.dart';
 import 'cadastro_animal.dart';
 import 'solicitacoes_adocao.dart';
+import 'perfil.dart'; 
 
 class Home extends StatefulWidget {
   Home({super.key});
@@ -95,7 +96,7 @@ class _HomeState extends State<Home> {
         ],
       ),
 
-      // Sidebar (Drawer)
+      //sidebar
       drawer: Drawer(
         backgroundColor: Color(0xFFF5F2EA),
         child: ListView(
@@ -139,6 +140,23 @@ class _HomeState extends State<Home> {
                 Navigator.pop(context);
               },
             ),
+            
+            ListTile(
+              leading: Icon(Icons.person, color: Color(0xFF568B89)),
+              title: Text(
+                'Meu Perfil',
+                style: TextStyle(color: Color(0xFF263F50), fontWeight: FontWeight.bold),
+              ),
+              onTap: () {
+                Navigator.pop(context); 
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Perfil()), 
+                );
+              },
+            ),
+            
+
             ListTile(
               leading: Icon(Icons.add_circle, color: Color(0xFF568B89)),
               title: Text(
@@ -270,7 +288,7 @@ class _HomeState extends State<Home> {
               ),
             ),
 
-          // Lista de Pets
+          //lista de pets
           Expanded(
             child: _construirCorpo(),
           ),
@@ -349,7 +367,6 @@ class _HomeState extends State<Home> {
                 ),
               );
             },
-            onFavoritoTap: () {},
           );
         },
       ),
