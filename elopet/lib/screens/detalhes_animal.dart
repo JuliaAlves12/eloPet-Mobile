@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/animal.dart';
+import '../services/animal_service.dart';
 import 'formulario_adocao.dart';
-import 'perfil.dart'; // Importa a tela de perfil
+import 'perfil.dart';
 
 class DetalhesAnimal extends StatelessWidget {
   final Animal animal;
+  final AnimalService _animalService = AnimalService();
 
   DetalhesAnimal({
     super.key,
@@ -17,24 +19,21 @@ class DetalhesAnimal extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     final temPerfil = prefs.getBool('temPerfil') ?? false;
 
-    // Prevenção de erro caso a tela seja fechada antes do async terminar
     if (!context.mounted) return;
 
     if (!temPerfil) {
-      // Se NÃO tiver perfil, mostra aviso e envia para a tela de Perfil
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Você precisa criar um perfil para adotar!'),
           backgroundColor: Colors.red[400],
         ),
       );
-      
+
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Perfil()),
       );
     } else {
-      // Se TIVER perfil, vai direto para o formulário de adoção
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -44,14 +43,120 @@ class DetalhesAnimal extends StatelessWidget {
     }
   }
 
+  // PUT: Marca o animal como Indisponível (Adotado)
+  Future<void> _marcarComoAdotado(BuildContext context) async {
+    final confirmou = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirmar Adoção'),
+        content: Text('Deseja marcar ${animal.nome} como já adotado?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF568B89)),
+            child: Text('Confirmar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmou == true) {
+      final dadosAtualizados = animal.toJson();
+      dadosAtualizados['disponivel'] = false; // Altera o estado no PUT
+
+      final sucesso = await _animalService.atualizarAnimal(
+        animal.id,
+        dadosAtualizados,
+      );
+
+      if (!context.mounted) return;
+
+      if (sucesso) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${animal.nome} foi marcado como adotado!')),
+        );
+        Navigator.pop(context, true); // Volta para a home e atualiza
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Falha ao atualizar animal.'),
+            backgroundColor: Colors.red[400],
+          ),
+        );
+      }
+    }
+  }
+
+  // DELETE: Apaga o animal da API
+  Future<void> _deletarAnimal(BuildContext context) async {
+    final confirmou = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Apagar Pet'),
+        content: Text(
+          'Tem certeza que deseja apagar ${animal.nome} do sistema?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[400]),
+            child: Text('Apagar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmou == true) {
+      final sucesso = await _animalService.deletarAnimal(animal.id);
+
+      if (!context.mounted) return;
+
+      if (sucesso) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${animal.nome} foi removido com sucesso.')),
+        );
+        Navigator.pop(context, true); // Volta para a home e atualiza
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Falha ao apagar animal.'),
+            backgroundColor: Colors.red[400],
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F2EA), 
+      backgroundColor: Color(0xFFF5F2EA),
       appBar: AppBar(
         title: Text(animal.nome),
         backgroundColor: Color(0xFF263F50),
         foregroundColor: Colors.white,
+        actions: [
+          // Ícone PUT (Editar status)
+          IconButton(
+            icon: Icon(Icons.check_circle_outline),
+            tooltip: 'Marcar como Adotado',
+            onPressed: () => _marcarComoAdotado(context),
+          ),
+          // Ícone DELETE (Apagar)
+          IconButton(
+            icon: Icon(Icons.delete_outline, color: Colors.red[300]),
+            tooltip: 'Apagar Pet',
+            onPressed: () => _deletarAnimal(context),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -62,6 +167,7 @@ class DetalhesAnimal extends StatelessWidget {
               height: 280,
               width: double.infinity,
               fit: BoxFit.cover,
+              webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
                   height: 280,
@@ -104,7 +210,11 @@ class DetalhesAnimal extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _construirTagInfo('Idade', animal.idade, Icons.cake),
-                      _construirTagInfo('Porte', animal.porte, Icons.straighten),
+                      _construirTagInfo(
+                        'Porte',
+                        animal.porte,
+                        Icons.straighten,
+                      ),
                       _construirTagInfo('Sexo', animal.sexo, Icons.wc),
                     ],
                   ),
@@ -135,7 +245,6 @@ class DetalhesAnimal extends StatelessWidget {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      // Aqui ligámos o botão à nossa nova função!
                       onPressed: () => _tentarAdotar(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF263F50),

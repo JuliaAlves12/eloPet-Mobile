@@ -6,8 +6,8 @@ import '../screens/perfil.dart'; // Importa a sua tela de perfil
 class AnimalCard extends StatefulWidget {
   final Animal animal;
   final VoidCallback onTap;
-  
-  // Repare que retirámos o 'onFavoritoTap' e o 'isFavorito', 
+
+  // Repare que retirámos o 'onFavoritoTap' e o 'isFavorito',
   // pois agora o próprio cartão controla isso sozinho!
   const AnimalCard({
     super.key,
@@ -54,7 +54,7 @@ class _AnimalCardState extends State<AnimalCard> {
           backgroundColor: Colors.red[400],
         ),
       );
-      
+
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Perfil()),
@@ -64,8 +64,8 @@ class _AnimalCardState extends State<AnimalCard> {
 
     // Se estiver logado, adiciona ou remove dos favoritos
     List<String> favoritos = prefs.getStringList('favoritos') ?? [];
-    final animalId = widget.animal.nome; 
-    
+    final animalId = widget.animal.nome;
+
     setState(() {
       if (favoritos.contains(animalId)) {
         favoritos.remove(animalId);
@@ -81,7 +81,7 @@ class _AnimalCardState extends State<AnimalCard> {
         );
       }
     });
-    
+
     // Grava as alterações no aparelho
     await prefs.setStringList('favoritos', favoritos);
   }
@@ -108,7 +108,8 @@ class _AnimalCardState extends State<AnimalCard> {
                   width: double.infinity,
                   fit: BoxFit.cover,
                   alignment: Alignment.center,
-                  errorBuilder: (context, error, StackTrace) {
+                  webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
+                  errorBuilder: (context, error, stackTrace) {
                     return Container(
                       height: 200,
                       color: const Color(0XFFB9C9BD),
