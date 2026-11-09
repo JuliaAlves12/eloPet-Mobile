@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/animal.dart';
-import '../services/animal_service.dart';
 import 'formulario_adocao.dart';
 import 'perfil.dart';
 
 class DetalhesAnimal extends StatelessWidget {
   final Animal animal;
-  final AnimalService _animalService = AnimalService();
 
   DetalhesAnimal({
     super.key,
@@ -43,98 +41,6 @@ class DetalhesAnimal extends StatelessWidget {
     }
   }
 
-  // PUT: Marca o animal como Indisponível (Adotado)
-  Future<void> _marcarComoAdotado(BuildContext context) async {
-    final confirmou = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Confirmar Adoção'),
-        content: Text('Deseja marcar ${animal.nome} como já adotado?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF568B89)),
-            child: Text('Confirmar', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmou == true) {
-      final dadosAtualizados = animal.toJson();
-      dadosAtualizados['disponivel'] = false; // Altera o estado no PUT
-
-      final sucesso = await _animalService.atualizarAnimal(
-        animal.id,
-        dadosAtualizados,
-      );
-
-      if (!context.mounted) return;
-
-      if (sucesso) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${animal.nome} foi marcado como adotado!')),
-        );
-        Navigator.pop(context, true); // Volta para a home e atualiza
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Falha ao atualizar animal.'),
-            backgroundColor: Colors.red[400],
-          ),
-        );
-      }
-    }
-  }
-
-  // DELETE: Apaga o animal da API
-  Future<void> _deletarAnimal(BuildContext context) async {
-    final confirmou = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Apagar Pet'),
-        content: Text(
-          'Tem certeza que deseja apagar ${animal.nome} do sistema?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[400]),
-            child: Text('Apagar', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmou == true) {
-      final sucesso = await _animalService.deletarAnimal(animal.id);
-
-      if (!context.mounted) return;
-
-      if (sucesso) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${animal.nome} foi removido com sucesso.')),
-        );
-        Navigator.pop(context, true); // Volta para a home e atualiza
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Falha ao apagar animal.'),
-            backgroundColor: Colors.red[400],
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,20 +49,7 @@ class DetalhesAnimal extends StatelessWidget {
         title: Text(animal.nome),
         backgroundColor: Color(0xFF263F50),
         foregroundColor: Colors.white,
-        actions: [
-          // Ícone PUT (Editar status)
-          IconButton(
-            icon: Icon(Icons.check_circle_outline),
-            tooltip: 'Marcar como Adotado',
-            onPressed: () => _marcarComoAdotado(context),
-          ),
-          // Ícone DELETE (Apagar)
-          IconButton(
-            icon: Icon(Icons.delete_outline, color: Colors.red[300]),
-            tooltip: 'Apagar Pet',
-            onPressed: () => _deletarAnimal(context),
-          ),
-        ],
+        // Removidos os actions com os botões de editar e excluir
       ),
       body: SingleChildScrollView(
         child: Column(

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,7 +16,8 @@ class _PerfilState extends State<Perfil> {
   bool _temPerfilLocal = false;
   String _nomeSalvo = '';
   String _emailSalvo = '';
-  List<String> _petsSalvos = []; //guarda os ids dos pets salvos
+  List<Map<String, dynamic>> _recibosAdocao = [];
+
   @override
   void initState() {
     super.initState();
@@ -24,11 +26,15 @@ class _PerfilState extends State<Perfil> {
 
   Future<void> _carregarDadosLocais() async {
     final prefs = await SharedPreferences.getInstance();
+    final listRecibos = prefs.getStringList('recibos_adocao') ?? [];
+
     setState(() {
       _temPerfilLocal = prefs.getBool('temPerfil') ?? false;
       _nomeSalvo = prefs.getString('nome') ?? '';
       _emailSalvo = prefs.getString('email') ?? '';
-      _petsSalvos = prefs.getStringList('favoritos') ?? [];
+      _recibosAdocao = listRecibos
+          .map((item) => jsonDecode(item) as Map<String, dynamic>)
+          .toList();
     });
   }
 
@@ -54,7 +60,6 @@ class _PerfilState extends State<Perfil> {
 
   Future<void> _apagarPerfil() async {
     final prefs = await SharedPreferences.getInstance();
-    //apaga nome e email, mas mantém favoritos se quiser     
     await prefs.remove('temPerfil');
     await prefs.remove('nome');
     await prefs.remove('email');
@@ -79,7 +84,6 @@ class _PerfilState extends State<Perfil> {
     );
   }
 
-  //tela mostrada quando o usuario não fez login ainda
   Widget _construirFormularioCadastro() {
     return Padding(
       padding: EdgeInsets.all(16.0),
@@ -129,74 +133,121 @@ class _PerfilState extends State<Perfil> {
     );
   }
 
-  //tela mostrada quando o usuário ja tem perfil salvo
   Widget _construirAbaPerfil() {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          color: Colors.white,
-          padding: EdgeInsets.all(20),
-          child: Column(
-            children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: Color(0xFF568B89),
-                child: Text(
-                  _nomeSalvo.isNotEmpty ? _nomeSalvo[0].toUpperCase() : '?',
-                  style: TextStyle(fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            color: Colors.white,
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Color(0xFF568B89),
+                  child: Text(
+                    _nomeSalvo.isNotEmpty ? _nomeSalvo[0].toUpperCase() : '?',
+                    style: TextStyle(fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              SizedBox(height: 12),
-              Text(_nomeSalvo, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF263F50))),
-              Text(_emailSalvo, style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-              SizedBox(height: 12),
-              TextButton(
-                onPressed: _apagarPerfil,
-                child: Text('Sair', style: TextStyle(color: Colors.red)),
-              )
-            ],
+                SizedBox(height: 12),
+                Text(_nomeSalvo, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF263F50))),
+                Text(_emailSalvo, style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+                SizedBox(height: 12),
+                TextButton(
+                  onPressed: _apagarPerfil,
+                  child: Text('Sair da Conta', style: TextStyle(color: Colors.red)),
+                )
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: 12),
-        //pets salvos no perfil
-        Expanded(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
+          SizedBox(height: 16),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
+                    Icon(Icons.receipt_long, color: Color(0xFF263F50)),
                     SizedBox(width: 8),
                     Text(
-                      'Meus Pets Salvos',
+                      'Meus Recibos de Adoção',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF263F50)),
                     ),
                   ],
                 ),
-              ),
-              Expanded(
-                child: _petsSalvos.isEmpty
-                    ? Center(
-                        child: Text(
-                          'Você ainda não salvou nenhum pet.',
-                          style: TextStyle(color: Colors.grey[700]),
+                SizedBox(height: 8),
+
+                _recibosAdocao.isEmpty
+                    ? Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Nenhuma adoção concluída até o momento.',
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
                         ),
                       )
                     : ListView.builder(
-                        itemCount: _petsSalvos.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: _recibosAdocao.length,
                         itemBuilder: (context, index) {
-                          return ListTile(
-                            leading: Icon(Icons.pets, color: Color(0xFF568B89)),
-                            title: Text('Pet: ${_petsSalvos[index]}'),
+                          final recibo = _recibosAdocao[index];
+                          return Card(
+                            margin: EdgeInsets.only(bottom: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ExpansionTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.green[100],
+                                child: Icon(Icons.verified, color: Colors.green[700]),
+                              ),
+                              title: Text(
+                                'Adoção: ${recibo['nomePet']}',
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF263F50)),
+                              ),
+                              subtitle: Text('Data: ${recibo['data']}'),
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Divider(),
+                                      Text('Adotante: ${recibo['nomeAdotante']}'),
+                                      Text('Telefone: ${recibo['telefone']}'),
+                                      Text('E-mail: ${recibo['email']}'),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Status: Recibo Oficial Confirmado',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green[800],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                           );
                         },
                       ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+          SizedBox(height: 24),
+        ],
+      ),
     );
   }
 }

@@ -97,13 +97,11 @@ class AnimalService {
     return [];
   }
 
-  //Atualizar os dados de um animal na API
-  Future<bool> atualizarAnimal(String id, Map<String, dynamic> dadosAtualizados) async {
+  //Apagar um animal do banco de dados na API
+  Future<bool> deletarAnimal(String id) async {
     try {
-      final response = await http.put(
+      final response = await http.delete(
         Uri.parse('$baseUrl/animais/$id'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(dadosAtualizados),
       );
 
       return response.statusCode == 200 || response.statusCode == 204;
@@ -112,13 +110,12 @@ class AnimalService {
     }
   }
 
-  //Apagar um animal do banco de dados na API
-  Future<bool> deletarAnimal(String id) async {
+  // Função para apagar uma solicitação
+  Future<bool> deletarSolicitacao(String id) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl/animais/$id'),
+        Uri.parse('$baseUrl/solicitacoes/$id'),
       );
-
       return response.statusCode == 200 || response.statusCode == 204;
     } catch (e) {
       return false;

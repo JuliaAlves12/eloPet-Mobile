@@ -1,6 +1,5 @@
 import 'package:elopet/screens/home.dart';
 import 'package:flutter/material.dart';
-import 'home.dart'; 
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
