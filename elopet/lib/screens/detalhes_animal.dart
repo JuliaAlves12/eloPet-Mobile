@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/animal.dart';
+import 'editar_animal.dart';
 import 'formulario_adocao.dart';
 import 'perfil.dart';
 
@@ -41,6 +42,19 @@ class DetalhesAnimal extends StatelessWidget {
     }
   }
 
+  Future<void> _abrirEdicao(BuildContext context) async {
+    final salvou = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditarAnimal(animal: animal),
+      ),
+    );
+
+    if (salvou == true && context.mounted) {
+      Navigator.pop(context, true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +63,13 @@ class DetalhesAnimal extends StatelessWidget {
         title: Text(animal.nome),
         backgroundColor: Color(0xFF263F50),
         foregroundColor: Colors.white,
-        // Removidos os actions com os botões de editar e excluir
+        actions: [
+          IconButton(
+            tooltip: 'Editar pet',
+            onPressed: () => _abrirEdicao(context),
+            icon: const Icon(Icons.edit),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(

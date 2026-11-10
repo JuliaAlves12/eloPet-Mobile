@@ -71,6 +71,26 @@ class AnimalService {
     }
   }
 
+  // Atualiza um animal existente (PUT na rota /animais/{id})
+  Future<bool> atualizarAnimal(
+    String id,
+    Map<String, dynamic> dadosAtualizados,
+  ) async {
+    if (id.trim().isEmpty) return false;
+
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/animais/${Uri.encodeComponent(id)}'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(dadosAtualizados),
+      ).timeout(const Duration(seconds: 15));
+
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      return false;
+    }
+  }
+
   //Enviar solicitação de adoção (POST na rota /solicitacoes)
   Future<bool> enviarSolicitacaoAdocao(Map<String, dynamic> dadosSolicitacao) async {
     try {

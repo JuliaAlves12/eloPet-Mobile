@@ -359,13 +359,17 @@ class _HomeState extends State<Home> {
           final animal = _animaisFiltrados[index];
           return AnimalCard(
             animal: animal,
-            onTap: () {
-              Navigator.push(
+            onTap: () async {
+              final alterou = await Navigator.push<bool>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => DetalhesAnimal(animal: animal),
                 ),
               );
+
+              if (alterou == true && mounted) {
+                _buscarAnimais();
+              }
             },
           );
         },

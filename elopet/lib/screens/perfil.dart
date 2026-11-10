@@ -171,7 +171,6 @@ class _PerfilState extends State<Perfil> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.receipt_long, color: Color(0xFF263F50)),
                     SizedBox(width: 8),
                     Text(
                       'Meus Recibos de Adoção',
