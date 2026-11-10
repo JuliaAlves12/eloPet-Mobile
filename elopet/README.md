@@ -24,7 +24,33 @@ O comando `flutter run` inicia o app em um dispositivo ou emulador disponível. 
 - Envio de solicitações de adoção e tela para aprovar ou recusar solicitações.
 - Geração de recibo após a aprovação de uma adoção.
 
-Os dados de animais e solicitações são lidos e alterados pela API configurada em `lib/services/animal_service.dart` (`https://elopet-api-1.onrender.com`).
+## API do projeto
+
+Os dados de animais e solicitações são lidos e alterados pela API `https://elopet-api-1.onrender.com`, configurada em `lib/services/animal_service.dart`. O app usa estes métodos e rotas:
+
+- `GET /animais` para listar os animais.
+- `POST /animais` para cadastrar um animal.
+- `PUT /animais/{id}` para atualizar os dados de um animal.
+- `DELETE /animais/{id}` para remover um animal após a aprovação da adoção.
+- `GET /solicitacoes` para listar as solicitações.
+- `POST /solicitacoes` para enviar uma solicitação de adoção.
+- `DELETE /solicitacoes/{id}` para remover uma solicitação aprovada ou recusada.
+
+## APIs externas de fotos
+
+No cadastro de animais, o app pode buscar uma imagem aleatória de cachorro na [Dog CEO API](https://dog.ceo/dog-api/) ou de gato na [The Cat API](https://thecatapi.com/). Se a consulta falhar, usa imagens de reserva hospedadas pela Dog CEO e pelo Unsplash.
+
+## Gerar APK para Android
+
+Com o Flutter e as ferramentas de build para Android instalados, execute na raiz do repositório:
+
+```bash
+cd elopet
+flutter pub get
+flutter build apk --release
+```
+
+O APK gerado fica em `build/app/outputs/flutter-apk/app-release.apk`, dentro da pasta `elopet`.
 
 ## Tratamento de dados pessoais
 
